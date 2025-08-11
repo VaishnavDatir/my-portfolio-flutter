@@ -11,8 +11,8 @@ class HomeViewModel extends ChangeNotifier {
     portfolioInfo = PortfolioInfo(
       name: "Vaishnav Datir",
       designation: "Software Engineer | Full Stack Developer",
-      email: "vaishnav@example.com",
-      contactNo: "+91 988133901",
+      email: "vaishnav.datir@gmail.com",
+      contactNo: "+91 9881339091",
       location: "Navi Mumbai, Maharashtra, India",
       about:
           "I’m a passionate software developer with a strong foundation in modern web and mobile technologies. "

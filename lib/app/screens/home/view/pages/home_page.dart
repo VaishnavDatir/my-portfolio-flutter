@@ -1,14 +1,19 @@
 import 'dart:ui'; // For ImageFilter
 
 import 'package:flutter/material.dart';
+import 'package:my_portfolio_flutter/app/core/utils/responsive.dart';
 import 'package:my_portfolio_flutter/app/core/viewmodel/app_viewmodel.dart';
+import 'package:my_portfolio_flutter/app/screens/home/view/sections/services/services_section.dart';
 import 'package:provider/provider.dart';
 
+import '../../footer/portfolio_footer.dart';
 import '../../viewmodel/home_viewmodel.dart';
 import '../sections/about/about_section.dart';
 import '../sections/education/education_section.dart';
+import '../sections/experience/experience_section.dart';
 import '../sections/intro/intro_section.dart';
 import '../sections/projects/project_section.dart';
+import '../sections/skills/skills_section.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,21 +30,22 @@ class _HomePageState extends State<HomePage>
   late AnimationController _menuController;
   late Animation<double> _menuAnimation;
 
-  bool get _isMenuOpen =>
-      _menuController.status == AnimationStatus.completed ||
-      _menuController.status == AnimationStatus.forward;
-
-  final double introSectionHeight = 170;
-  final double aboutOffset = 200;
-  final double projectsOffset = 700;
-  final double educationOffset = 1100;
+// Keys for each section
+  final GlobalKey introKey = GlobalKey();
+  final GlobalKey aboutKey = GlobalKey();
+  final GlobalKey servicesKey = GlobalKey();
+  final GlobalKey skillsKey = GlobalKey();
+  final GlobalKey projectsKey = GlobalKey();
+  final GlobalKey experienceKey = GlobalKey();
+  final GlobalKey educationKey = GlobalKey();
+  
 
   @override
   void initState() {
     super.initState();
 
     _scrollController.addListener(() {
-      final isScrolledNow = _scrollController.offset > introSectionHeight;
+      final isScrolledNow = _scrollController.offset > 170;
       if (isScrolledNow != _scrolled) {
         setState(() {
           _scrolled = isScrolledNow;
@@ -79,22 +85,26 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  void scrollToSection(double offset) {
-    _scrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeInOut,
-    );
+  void scrollToSection(GlobalKey key) {
+    final context = key.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.07
+      );
+    }
     closeMenu();
   }
 
   @override
   Widget build(BuildContext context) {
-    final avm = Provider.of<AppViewModel>(context);
     final vm = Provider.of<HomeViewModel>(context);
 
     final width = MediaQuery.of(context).size.width;
-    final isMobile = width < 600;
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -130,7 +140,7 @@ class _HomePageState extends State<HomePage>
                             duration: const Duration(milliseconds: 300),
                             child: InkWell(
                               onTap: () {
-                                scrollToSection(0);
+                                scrollToSection(introKey);
                                 closeMenu();
                               },
                               child: Text(
@@ -146,9 +156,9 @@ class _HomePageState extends State<HomePage>
                             ),
                           ),
                           const Spacer(),
-                          if (!isMobile) ...[
+                          if (!isMobile && !isTablet) ...[
                             TextButton(
-                              onPressed: () => scrollToSection(aboutOffset),
+                              onPressed: () => scrollToSection(aboutKey),
                               child: Text(
                                 "About",
                                 style: Theme.of(context).textTheme.bodyLarge
@@ -160,7 +170,31 @@ class _HomePageState extends State<HomePage>
                             ),
                             const SizedBox(width: 12),
                             TextButton(
-                              onPressed: () => scrollToSection(projectsOffset),
+                              onPressed: () => scrollToSection(servicesKey),
+                              child: Text(
+                                "What I Build",
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.blue.shade600,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            TextButton(
+                              onPressed: () => scrollToSection(skillsKey),
+                              child: Text(
+                                "Skills",
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.blue.shade600,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            TextButton(
+                              onPressed: () => scrollToSection(projectsKey),
                               child: Text(
                                 "Projects",
                                 style: Theme.of(context).textTheme.bodyLarge
@@ -172,7 +206,19 @@ class _HomePageState extends State<HomePage>
                             ),
                             const SizedBox(width: 12),
                             TextButton(
-                              onPressed: () => scrollToSection(educationOffset),
+                              onPressed: () => scrollToSection(experienceKey),
+                              child: Text(
+                                "Experience",
+                                style: Theme.of(context).textTheme.bodyLarge
+                                    ?.copyWith(
+                                      color: Colors.blue.shade600,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            TextButton(
+                              onPressed: () => scrollToSection(educationKey),
                               child: Text(
                                 "Education",
                                 style: Theme.of(context).textTheme.bodyLarge
@@ -208,18 +254,22 @@ class _HomePageState extends State<HomePage>
               parent: AlwaysScrollableScrollPhysics(),
             ),
             child: Column(
-              children: const [
+              children: [
                 SizedBox(height: 32),
-                IntroSection(),
-                AboutSection(),
-                ProjectSection(),
-                EducationSection(),
+                IntroSection(key: introKey),
+                AboutSection(key: aboutKey),
+                ServicesSection(key: servicesKey),
+                SkillsSection(key: skillsKey),
+                ProjectsSection(key: projectsKey),
+                ExperienceSection(key: experienceKey),
+                EducationSection(key: educationKey),
+                PortfolioFooter()
               ],
             ),
           ),
 
           // Dropdown menu sliding down/up with animation
-          if (isMobile)
+          if (isMobile || isTablet)
             !_scrolled
                 ? Container()
                 : Positioned(
@@ -253,15 +303,27 @@ class _HomePageState extends State<HomePage>
                               children: [
                                 ListTile(
                                   title: const Text("About"),
-                                  onTap: () => scrollToSection(aboutOffset),
+                                  onTap: () => scrollToSection(aboutKey),
+                                ),
+                                ListTile(
+                                  title: const Text("What I Build"),
+                                  onTap: () => scrollToSection(servicesKey),
+                                ),
+                                ListTile(
+                                  title: const Text("Skills"),
+                                  onTap: () => scrollToSection(skillsKey),
                                 ),
                                 ListTile(
                                   title: const Text("Projects"),
-                                  onTap: () => scrollToSection(projectsOffset),
+                                  onTap: () => scrollToSection(projectsKey),
+                                ),
+                                ListTile(
+                                  title: const Text("Experience"),
+                                  onTap: () => scrollToSection(experienceKey),
                                 ),
                                 ListTile(
                                   title: const Text("Education"),
-                                  onTap: () => scrollToSection(educationOffset),
+                                  onTap: () => scrollToSection(educationKey),
                                 ),
                               ],
                             ),
@@ -273,50 +335,19 @@ class _HomePageState extends State<HomePage>
         ],
       ),
 
-      floatingActionButton: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.25),
-                width: 1.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: FloatingActionButton.small(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              onPressed: avm.toggleTheme,
-              child: Icon(
-                avm.themeMode == ThemeMode.dark
-                    ? Icons.light_mode
-                    : Icons.dark_mode,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
+      floatingActionButton: ThemeFloatingActionButton()
     );
   }
 }
 
 class ThemeFloatingActionButton extends StatelessWidget {
-  const ThemeFloatingActionButton({super.key, required this.avm});
+  const ThemeFloatingActionButton({super.key});
 
-  final AppViewModel avm;
 
   @override
   Widget build(BuildContext context) {
+    final avm = Provider.of<AppViewModel>(context);
+
     return ClipOval(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
@@ -330,9 +361,9 @@ class ThemeFloatingActionButton extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 10,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -344,7 +375,9 @@ class ThemeFloatingActionButton extends StatelessWidget {
               avm.themeMode == ThemeMode.dark
                   ? Icons.light_mode
                   : Icons.dark_mode,
-              color: Colors.white,
+              color: avm.themeMode == ThemeMode.dark
+                  ? Colors.white
+                  : Colors.black87,
             ),
           ),
         ),

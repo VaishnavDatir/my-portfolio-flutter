@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../../core/utils/responsive.dart';
@@ -12,6 +13,7 @@ class AboutSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = Provider.of<HomeViewModel>(context);
     final screenWidth = MediaQuery.of(context).size.width;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -24,17 +26,16 @@ class AboutSection extends StatelessWidget {
             width: screenWidth * (isMobile ? 0.8 : 0.9),
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  "About",
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: isMobile ? 22 : 28,
+                  "About Me",
+                  style: GoogleFonts.poppins(
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.italic,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
-                Divider(),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     return isMobile
@@ -64,6 +65,7 @@ class AboutSection extends StatelessWidget {
                                   vm.portfolioInfo.about,
                                   softWrap: true,
                                   style: Theme.of(context).textTheme.bodyLarge,
+                                  textAlign: TextAlign.justify,
                                 ),
                               ),
                               SizedBox(width: 24),
