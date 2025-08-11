@@ -25,7 +25,7 @@ class MyPortfolioApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final appVM = Provider.of<AppViewModel>(context);
     return MaterialApp(
-      title: 'My Portfolio',
+      title: 'Vaishnav Datir Portfolio',
       debugShowCheckedModeBanner: false,
       themeAnimationCurve: Curves.easeIn,
       theme: AppTheme.lightTheme,
